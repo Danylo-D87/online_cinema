@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.env
+.venv
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.coverage.*
+htmlcov/
+.nox/
+.ipynb_checkpoints
+*.env # Запобігти випадковому коміту будь-яких файлів .env
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# IDEs and Editors
+.idea/ # PyCharm
+.idea
+.vscode/ # VSCode
+*.sublime-project
+*.sublime-workspace
+.project
+.directory
+
+# Virtual Environments created by other tools (just in case)
+pip-wheel-metadata/
+
+# FastAPI specific
+.webassets-cache/
+
+# Alembic
+alembic/versions/ # Якщо ви не хочете комітити файли міграцій (зазвичай їх комітять), але якщо потрібно тимчасово ігнорувати.
+*.mpy
+*.json
+
+# Poetry
+poetry.lock
+.poetry/
+
+# Logs and temporary files
+*.log
+*.tmp
+tmp/
+
+# Database files (if local, not for production setup via Docker usually)
+*.db
+*.sqlite
+*.sqlite3
+
+# Test related
+/tests/__pycache__/
+/.coverage
+/pytest_cache
