@@ -19,6 +19,7 @@ class Movie(Base):
     updated_at = Column(DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))
 
     genres = relationship("Genre", secondary=movies_genres, back_populates="movies")
+    favorite_movies = relationship("FavoriteMovie", back_populates="movie") # <-- ДОДАНО!
 
     def __repr__(self):
         return f"<Movie(name='{self.name}', year={self.year})>"
