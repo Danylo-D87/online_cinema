@@ -1,15 +1,7 @@
-from .genre import GenreCreate, GenreUpdate, GenreResponse
-from .movie import MovieCreate, MovieUpdate, MovieResponse
-from .certification import CertificationCreate, CertificationUpdate, CertificationResponse
-from .director import DirectorCreate, DirectorUpdate, DirectorResponse
-from .star import StarCreate, StarUpdate, StarResponse
-from .cart import CartCreate, CartResponse
-from .cart_item import CartItemCreate, CartItemResponse
+from .user.user_group import UserGroupBase, UserGroupResponse, UserGroupCreate, UserGroupUpdate, UserGroupEnumSchema
+from .user.user import UserRegister, UserLogin, UserResponse, UserUpdate, UserActivation, UserUpdateGroup, UserRegistrationResponse
+from .user.token import Token, TokenData, ActivationTokenResponse, RefreshTokenResponse
 
-from .user_group import UserGroupCreate, UserGroupUpdate, UserGroupResponse
-from .user_profile import UserProfileCreate, UserProfileUpdate, UserProfileResponse
-from .user import UserRegister, UserCreate, UserUpdate, UserChangePassword, UserResponse
-from .auth import (
-    UserLogin, TokenResponse, RequestActivation, ActivateAccount,
-    RequestPasswordReset, ResetPassword, TokenStatusResponse, TokenRevoke
-)
+from .movies.genre import GenreBase, GenreResponse
+from .movies.movies import MovieBase, MovieCreate, MovieUpdate, MovieResponse
+from .movies.favorite_movie import FavoriteMovieBase, FavoriteMovieCreate, FavoriteMovieResponse

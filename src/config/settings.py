@@ -6,8 +6,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     SECRET_KEY: str
     ALGORITHM: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
-    REFRESH_TOKEN_EXPIRE_DAYS: int
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 40
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     EMAIL_HOST_USER: EmailStr
     EMAIL_HOST_PASSWORD: str
     EMAIL_HOST: str
