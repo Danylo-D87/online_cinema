@@ -17,4 +17,3 @@ class UserGroup(Base):
 
     def __repr__(self):
         return f"<UserGroup {self.name}>"
-

@@ -14,7 +14,8 @@ class User(Base):
     hashed_password = Column(String(100), nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now(UTC))
-    updated_at = Column(DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))
+    updated_at = Column(DateTime,
+                        default=datetime.now(UTC), onupdate=datetime.now(UTC))
 
     group_id = Column(Integer, ForeignKey("user_groups.id"))
     group = relationship("UserGroup", back_populates="users")

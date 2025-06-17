@@ -3,6 +3,7 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from src.database.base import Base
 
+
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
 
@@ -15,4 +16,5 @@ class RefreshToken(Base):
     user = relationship("User", back_populates="refresh_tokens")
 
     def __repr__(self):
-        return f"<RefreshToken(token='{self.token[:10]}...', user_id={self.user_id})>"
+        return (f"<RefreshToken("
+                f"token='{self.token[:10]}...', user_id={self.user_id})>")
