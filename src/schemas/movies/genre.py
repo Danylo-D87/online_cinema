@@ -1,11 +1,11 @@
 from pydantic import BaseModel
 
 
-class GenreBasic(BaseModel):
+class GenreBase(BaseModel):
     name: str
 
 
-class GenreSchema(GenreBasic):
+class GenreSchema(GenreBase):
     """"
                Genre Schema for:
 
@@ -14,5 +14,5 @@ class GenreSchema(GenreBasic):
     pass
 
 
-class GenreResponse(GenreBasic):
+class GenreResponse(GenreBase):
     id: int
