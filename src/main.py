@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from src.routes.genre import router as genres_router
 from src.routes.movies import router as movies_router
 from src.routes.favorite_movies import router as favorite_movies_router
+from src.routes.user_group import router as user_group_router
 
 app = FastAPI(
     title="My Movie API",
@@ -13,6 +14,7 @@ app = FastAPI(
 app.include_router(genres_router)
 app.include_router(movies_router)
 app.include_router(favorite_movies_router)
+app.include_router(user_group_router)
 
 # Ви можете додати інші роутери тут, наприклад:
 # from src.routes.movies import router as movies_router
