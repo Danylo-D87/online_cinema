@@ -89,21 +89,6 @@ class AuthService:
                 detail=f"Error during user registration: {type(e).__name__}: {e}"
             )
 
-        except Exception as e:
-            await self.db_session.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error during user registration: {type(e).__name__}: {e}"
-            )
-
-        except Exception as e:
-            await self.db_session.rollback()
-
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error during user registration: {type(e).__name__}: {e}"
-            )
-
     async def verify_user_email(self, activation_token: str) -> User:
         token_entry_query = await self.db_session.execute(
             select(ActivationToken)
@@ -111,6 +96,9 @@ class AuthService:
             .options(selectinload(ActivationToken.user))
         )
         token_entry = token_entry_query.scalars().first()
+
+        if not token_entry:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activation token not found")
 
         expires_at_aware = token_entry.expires_at
         if expires_at_aware.tzinfo is None:
