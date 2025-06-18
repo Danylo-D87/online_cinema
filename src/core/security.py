@@ -10,15 +10,6 @@ from fastapi import HTTPException, status
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# !!!!!!! ДОДАЙТЕ ЦІ РЯДКИ ДЛЯ ОТЛАДКИ !!!!!!!
-print(f"Loading settings from: {settings.__module__}")
-print(f"Type of settings: {type(settings)}")
-if hasattr(settings, 'ACCESS_TOKEN_EXPIRE_MINUTES'):
-    print(f"ACCESS_TOKEN_EXPIRE_MINUTES found: {settings.ACCESS_TOKEN_EXPIRE_MINUTES}")
-else:
-    print("WARNING: ACCESS_TOKEN_EXPIRE_MINUTES NOT FOUND ON SETTINGS OBJECT!")
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 
 class PasswordHelper:
     @staticmethod

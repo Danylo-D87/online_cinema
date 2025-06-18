@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from typing import List
 
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +9,6 @@ from sqlalchemy.orm import selectinload
 
 from src.models.movies import Movie, Genre
 from src.schemas.movies.movies import MovieCreate, MovieUpdate
-from src.schemas.movies.genre import GenreResponse
 
 
 class MovieService:

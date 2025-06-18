@@ -18,7 +18,7 @@ class UserService:
 
     async def get_all_users(self) -> List[User]:
         result = await self.db_session.execute(
-            select(User).options(selectinload(User.group)) # Завантажуємо групу
+            select(User).options(selectinload(User.group))
         )
         return result.scalars().all()
 
@@ -61,10 +61,9 @@ class UserService:
 
         if "password" in update_data and update_data["password"]:
             user.password_hash = PasswordHelper.get_password_hash(update_data["password"])
-            del update_data["password"] # Видаляємо, щоб не намагатися встановити як атрибут
+            del update_data["password"]
 
         if "group_id" in update_data and update_data["group_id"] is not None:
-            # Перевіряємо існування нової групи
             new_group = await self.db_session.get(UserGroup, update_data["group_id"])
             if not new_group:
                 raise HTTPException(
@@ -72,7 +71,7 @@ class UserService:
                     detail=f"User group with ID {update_data['group_id']} not found."
                 )
             user.group_id = update_data["group_id"]
-            del update_data["group_id"] # Видаляємо
+            del update_data["group_id"]
 
         for field, value in update_data.items():
             setattr(user, field, value)
@@ -80,7 +79,7 @@ class UserService:
         user.updated_at = datetime.now(UTC)
 
         try:
-            self.db_session.add(user) # Додаємо, якщо об'єкт відкріплений, або для оновлення
+            self.db_session.add(user)
             await self.db_session.commit()
             await self.db_session.refresh(user, attribute_names=["group"])
         except Exception as e:
