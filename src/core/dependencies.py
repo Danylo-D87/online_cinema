@@ -1,4 +1,3 @@
-# src/dependencies/auth.py
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,23 +7,19 @@ from src.database.setup import get_db
 from src.core.security import decode_token
 from src.models.user.user import User
 from src.models.user.user_group import UserGroupEnum
-from src.schemas.user.token import TokenData
 from src.services.user.user import UserService
 
-# OAuth2PasswordBearer - це інструмент FastAPI для роботи з токенами
-# tokenUrl вказує, куди клієнт має відправити логін/пароль для отримання токена.
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")  # Вказуємо шлях до ендпоінта логіну
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 
 async def get_current_user(
         token: str = Depends(oauth2_scheme),
         db: AsyncSession = Depends(get_db)
 ) -> User:
-    """Залежність, що повертає поточного автентифікованого користувача."""
-    payload = decode_token(token)  # Використовуємо нашу утиліту для декодування
+    payload = decode_token(token)
 
     user_id = payload.get("user_id")
-    username = payload.get("sub")  # 'sub' зазвичай зберігає ім'я користувача
+    username = payload.get("sub")
 
     if user_id is None or username is None:
         raise HTTPException(
@@ -33,9 +28,8 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Використовуємо UserService для отримання користувача
     user_service = UserService(db)
-    current_user = await user_service.get_user_by_id(user_id)  # Завантажуємо користувача з БД
+    current_user = await user_service.get_user_by_id(user_id)
 
     if not current_user:
         raise HTTPException(
@@ -52,7 +46,6 @@ async def get_current_user(
     return current_user
 
 
-# Залежність для перевірки ролей (додамо її пізніше)
 def role_required(allowed_roles: List[UserGroupEnum]):
     def role_checker(current_user: User = Depends(get_current_user)):
         if current_user.group.name not in [role.value for role in allowed_roles]:

@@ -19,8 +19,7 @@ class AuthService:
     def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
 
-    async def register_user(self, user_data: UserRegister) -> User: # Важливо, щоб тип повернення був User
-        # Перевірка на унікальність username та email
+    async def register_user(self, user_data: UserRegister) -> User:
         existing_user = await self.db_session.execute(
             select(User).where(
                 (User.username == user_data.username) | (User.email == user_data.email)
@@ -32,7 +31,6 @@ class AuthService:
                 detail="User with this username or email already exists"
             )
 
-        # Знайти групу "user" за замовчуванням
         default_group_query = await self.db_session.execute(
             select(UserGroup).where(UserGroup.name == "user")
         )
@@ -70,12 +68,9 @@ class AuthService:
             )
             self.db_session.add(activation_token_db)
             await self.db_session.commit()
-            # await self.db_session.refresh(activation_token_db) # Не потрібно, якщо просто беремо рядок токена
 
-            # Отримуємо користувача з БД з завантаженою групою
             user_from_db_query = await self.db_session.execute(
                 select(User).where(User.id == new_user.id).options(selectinload(User.group))
-                # <- Повернуто до selectinload
             )
             user_from_db = user_from_db_query.scalars().first()
 
@@ -85,10 +80,7 @@ class AuthService:
                     detail="Failed to retrieve newly registered user after commit."
                 )
 
-            # !!! ТУТ ПОВЕРТАЄМО ОБ'ЄКТ, ЯКИЙ FastAPI ЗМОЖЕ СЕРІАЛІЗУВАТИ !!!
-            # Тепер ми повертаємо кортеж або об'єкт, який потім буде оброблений в роуті.
-            # Змінимо тип повернення функції на кортеж (User, str)
-            return user_from_db, activation_token_str  # Повертаємо об'єкт User та рядок токена
+            return user_from_db, activation_token_str
 
         except Exception as e:
             await self.db_session.rollback()
@@ -106,15 +98,13 @@ class AuthService:
 
         except Exception as e:
             await self.db_session.rollback()
-            # Важливо: якщо ви використовуєте f-string, переконайтеся, що e є коректним для представлення.
-            # Краще використовувати logger.error(f"Error during user registration: {e}", exc_info=True)
+
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error during user registration: {type(e).__name__}: {e}" # Краще для дебагу
+                detail=f"Error during user registration: {type(e).__name__}: {e}"
             )
 
     async def verify_user_email(self, activation_token: str) -> User:
-        """Активація облікового запису за токеном."""
         token_entry_query = await self.db_session.execute(
             select(ActivationToken)
             .where(ActivationToken.token == activation_token)
@@ -123,10 +113,10 @@ class AuthService:
         token_entry = token_entry_query.scalars().first()
 
         expires_at_aware = token_entry.expires_at
-        if expires_at_aware.tzinfo is None:  # Якщо timezone information відсутня (naive datetime)
-            expires_at_aware = expires_at_aware.replace(tzinfo=UTC)  # Припускаємо, що це UTC і робимо його aware
+        if expires_at_aware.tzinfo is None:
+            expires_at_aware = expires_at_aware.replace(tzinfo=UTC)
 
-        if expires_at_aware < datetime.now(UTC):  # Тепер обидва об'єкти aware
+        if expires_at_aware < datetime.now(UTC):
             await self.db_session.delete(token_entry)
             await self.db_session.commit()
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Activation token has expired")
@@ -136,7 +126,7 @@ class AuthService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User associated with token not found")
 
         if user.is_active:
-            await self.db_session.delete(token_entry)  # Видаляємо токен, якщо користувач вже активний
+            await self.db_session.delete(token_entry)
             await self.db_session.commit()
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Account is already active")
 
@@ -144,9 +134,9 @@ class AuthService:
         user.updated_at = datetime.now(UTC)
 
         try:
-            await self.db_session.delete(token_entry)  # Видаляємо використаний токен
+            await self.db_session.delete(token_entry)
             await self.db_session.commit()
-            await self.db_session.refresh(user, attribute_names=["group"])  # Оновлюємо користувача і завантажуємо групу
+            await self.db_session.refresh(user, attribute_names=["group"])
             return user
         except Exception as e:
             await self.db_session.rollback()
@@ -159,7 +149,7 @@ class AuthService:
         user_query = await self.db_session.execute(
             select(User)
             .where((User.username == user_data.username) | (User.email == user_data.username))
-            .options(selectinload(User.group))  # Завантажуємо групу для ролі
+            .options(selectinload(User.group))
         )
         user = user_query.scalars().first()
 
@@ -175,29 +165,26 @@ class AuthService:
                 detail="Account is not active. Please activate your account via email."
             )
 
-        # Створення Access Token
         access_token_payload = {
             "sub": user.username,
             "user_id": user.id,
             "email": user.email,
-            "role": user.group.name if user.group else "user"  # Додаємо роль до токена
+            "role": user.group.name if user.group else "user"
         }
         access_token = create_access_token(data=access_token_payload)
 
-        # Створення або оновлення Refresh Token
-        # Видаляємо старі Refresh Token для цього користувача (опціонально, можна мати кілька)
         await self.db_session.execute(
             select(RefreshToken).where(RefreshToken.user_id == user.id)
         )
         await self.db_session.execute(
             RefreshToken.__table__.delete().where(RefreshToken.user_id == user.id)
         )
-        await self.db_session.commit()  # Commit delete operation
+        await self.db_session.commit()
 
         refresh_token_payload = {
             "sub": user.username,
             "user_id": user.id,
-            "type": "refresh"  # Маркер для Refresh Token
+            "type": "refresh"
         }
         refresh_token_str = create_refresh_token(data=refresh_token_payload)
 
@@ -221,7 +208,6 @@ class AuthService:
         return Token(access_token=access_token, refresh_token=refresh_token_str)
 
     async def refresh_tokens(self, refresh_token: str) -> Token:
-        # Декодуємо Refresh Token, щоб отримати user_id
         payload = decode_token(refresh_token)
         user_id = payload.get("user_id")
         token_type = payload.get("type")
@@ -233,16 +219,14 @@ class AuthService:
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        # Знаходимо Refresh Token у базі даних
         refresh_token_db_query = await self.db_session.execute(
             select(RefreshToken)
             .where(RefreshToken.user_id == user_id, RefreshToken.token == refresh_token)
-            .options(selectinload(RefreshToken.user).selectinload(User.group))  # Завантажуємо юзера і його групу
+            .options(selectinload(RefreshToken.user).selectinload(User.group))
         )
         refresh_token_db = refresh_token_db_query.scalars().first()
 
         if not refresh_token_db or refresh_token_db.expires_at < datetime.now(UTC):
-            # Якщо токен не знайдений або прострочений, видаляємо його (якщо знайшли прострочений)
             if refresh_token_db:
                 await self.db_session.delete(refresh_token_db)
                 await self.db_session.commit()
@@ -260,7 +244,6 @@ class AuthService:
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        # Генеруємо новий Access Token
         access_token_payload = {
             "sub": user.username,
             "user_id": user.id,
@@ -269,9 +252,8 @@ class AuthService:
         }
         new_access_token = create_access_token(data=access_token_payload)
 
-        # Оновлюємо термін дії Refresh Token (або генеруємо новий)
         refresh_token_db.expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-        refresh_token_db.created_at = datetime.now(UTC)  # Оновлюємо дату створення, як оновлений
+        refresh_token_db.created_at = datetime.now(UTC)
 
         try:
             await self.db_session.commit()
