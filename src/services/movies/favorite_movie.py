@@ -8,7 +8,6 @@ from sqlalchemy.orm import selectinload
 
 from src.models.movies import FavoriteMovie, Movie
 from src.models.user.user import User
-from src.schemas.movies.favorite_movie import FavoriteMovieCreate, FavoriteMovieResponse
 
 
 class FavoriteMovieService:
@@ -16,24 +15,21 @@ class FavoriteMovieService:
         self.db_session = db_session
 
     async def add_favorite_movie(self, user_id: int, movie_id: int) -> FavoriteMovie:
-        # Перевіряємо, чи існує користувач
         user = await self.db_session.get(User, user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-        # Перевіряємо, чи існує фільм
         movie = await self.db_session.get(Movie, movie_id)
         if not movie:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Movie not found")
 
-        # Перевіряємо, чи фільм вже є улюбленим для цього користувача
         existing_favorite = await self.db_session.execute(
             select(FavoriteMovie)
             .where(FavoriteMovie.user_id == user_id, FavoriteMovie.movie_id == movie_id)
         )
         if existing_favorite.scalars().first():
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, # 409 Conflict - ресурс вже існує
+                status_code=status.HTTP_409_CONFLICT,
                 detail="Movie already in favorites for this user"
             )
 

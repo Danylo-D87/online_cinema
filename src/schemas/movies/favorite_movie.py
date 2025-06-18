@@ -12,12 +12,10 @@ class FavoriteMovieBase(BaseModel):
 
 
 class FavoriteMovieCreate(FavoriteMovieBase):
-    """Схема для додавання фільму до улюблених."""
     pass
 
 
 class FavoriteMovieResponse(FavoriteMovieBase):
-    """Схема для відповіді API, що відображає улюблені фільми."""
     id: int
     added_at: datetime
     movie: Optional[MovieResponse] = None

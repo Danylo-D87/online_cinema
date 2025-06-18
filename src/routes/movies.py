@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
+from src.core.dependencies import get_current_user
 from src.database.setup import get_db
+from src.models.user.user import User
 from src.schemas.movies.movies import MovieCreate, MovieUpdate, MovieResponse
 from src.services.movies.movie import MovieService
+
 
 router = APIRouter(
     prefix="/movies",
@@ -20,8 +23,14 @@ router = APIRouter(
 )
 async def create_movie_endpoint(
     movie_data: MovieCreate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    if current_user.group.name != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. Administrator privileges required."
+        )
     movie_service = MovieService(db)
     return await movie_service.create_movie(movie_data)
 
@@ -60,8 +69,14 @@ async def get_movie_by_id_endpoint(
 async def update_movie_endpoint(
     movie_id: int,
     movie_data: MovieUpdate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    if current_user.group.name != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. Administrator privileges required."
+        )
     movie_service = MovieService(db)
     return await movie_service.update_movie(movie_id, movie_data)
 
@@ -74,8 +89,14 @@ async def update_movie_endpoint(
 )
 async def delete_movie_endpoint(
     movie_id: int,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    if current_user.group.name != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. Administrator privileges required."
+        )
     movie_service = MovieService(db)
     await movie_service.delete_movie(movie_id)
-    return {} # Return empty response for 204 No Content
+    return {}

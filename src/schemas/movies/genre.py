@@ -6,11 +6,6 @@ class GenreBase(BaseModel):
 
 
 class GenreSchema(GenreBase):
-    """"
-               Genre Schema for:
-
-            create / update / delete.
-    """
     pass
 
 

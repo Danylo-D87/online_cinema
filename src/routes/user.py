@@ -1,4 +1,3 @@
-# src/routes/users.py
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
@@ -6,7 +5,7 @@ from typing import List
 from src.database.setup import get_db
 from src.schemas.user.user import UserResponse, UserUpdate
 from src.services.user.user import UserService
-from src.core.dependencies import get_current_user, role_required # Імпортуємо залежності для захисту
+from src.core.dependencies import get_current_user, role_required
 from src.models.user.user import User # Імпортуємо User та UserGroupEnum
 from src.models.user.user_group import UserGroupEnum
 
