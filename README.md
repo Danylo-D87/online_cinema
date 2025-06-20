@@ -10,10 +10,11 @@ This project is the backend service for an "Online Cinema" application, built us
 * **Movie Management:** CRUD operations for movies, including details like title, description, release date, rating, poster URL, trailer URL, and genres.
 * **Genre Management:** Define and manage movie genres.
 * **Favorite Movies:** Users can add and remove movies from their personal favorites list.
-* **User Reviews & Ratings:** Allow users to submit reviews and assign ratings to movies.
 * **Search & Filtering:** Functionality to search for movies and filter them by various criteria (e.g., genre, title).
 * **Admin Panel (future consideration/manual access):** Tools for administrators to manage content and users.
 * **Scalable Architecture:** Designed with FastAPI and SQLAlchemy (Async ORM) for asynchronous operations and performance.
+* **User Reviews & Ratings:**
+
 
 ## 🚀 Technologies Used
 
