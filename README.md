@@ -28,13 +28,3 @@ This project is the backend service for an "Online Cinema" application, built us
 * **python-multipart:** For handling form data and file uploads.
 * **uvicorn:** ASGI server for running the FastAPI application.
 * **pytest:** Testing framework for writing and running unit and integration tests.
-
-## ⚙️ Setup and Installation
-
-Follow these steps to set up the project locally.
-
-### Prerequisites
-
-* Python 3.9+
-* Poetry (recommended for dependency management, install via `pip install poetry`) or pip
-* **PostgreSQL database server** installed and running on your system.
